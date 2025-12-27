@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tracker">
+    <meta name="theme-color" content="#f97316">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIktvc3N1bSBUcmFja2VyIiwKICAic2hvcnRfbmFtZSI6ICJUcmFja2VyIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOWZhZmIiLAogICJ0aGVtZV9jb2xvciI6ICIjZjk3MzE2IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgdmlld0JveD0nMCAwIDE5MiAxOTInIGZpbGw9J25vbmUnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyclM0UlM0NyZWN0IHdpZHRoPScxOTInIGhlaWdodD0nMTkyJyByeD0nNDAnIGZpbGw9JyUyM2Y5NzMxNicvJTNFJTNDcmVjdCB4PSc0MCcgeT0nOTAnIHdpZHRoPScxMTInIGhlaWdodD0nMTInIHJ4PSc2JyBmaWxsPSd3aGl0ZScvJTNFJTNDY2lyY2xlIGN4PScxNTAnIGN5PSc5Nicgcj0nOCcgZmlsbD0nJTIzZWY0NDQ0Jy8lM0UlM0NjaXJjbGUgY3g9JzE1MCcgY3k9Jzk2JyByPSc2JyBmaWxsPSclMjNmZWU4ZTgnLyUzRSUzQ2xpbmUgeDE9JzE1MCcgeTE9Jzc4JyB4Mj0nMTUwJyB5Mj0nODInIHN0cm9rZT0nJTIzZDFkNWRiJyBzdHJva2Utd2lkdGg9JzEnIHN0cm9rZS1kYXNoYXJyYXk9JzEgMScvJTNFJTNDbGluZSB4MT0nMTU1JyB5MT0nODInIHgyPScxNTgnIHkyPSc4NCcgc3Ryb2tlPSclMjNkMWQ1ZGInIHN0cm9rZS13aWR0aD0nMScvJTNFJTNDbGluZSB4MT0nMTQ1JyB5MT0nODInIHgyPScxNDInIHkyPSc4NCcgc3Ryb2tlPSclMjNkMWQ1ZGInIHN0cm9rZS13aWR0aD0nMScvJTNFJTNDL3N2ZyUzRSIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgdmlld0JveD0nMCAwIDUxMiA1MTInIGZpbGw9J25vbmUnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyclM0UlM0NyZWN0IHdpZHRoPSc1MTInIGhlaWdodD0nNTEyJyByeD0nMTAwJyBmaWxsPSclMjNmOTczMTYnLyUzRSUzQ3JlY3QgeD0nMTAwJyB5PScyNDAnIHdpZHRoPSczMTInIGhlaWdodD0nMzInIHJ4PScxNicgZmlsbD0nd2hpdGUnLyUzRSUzQ2NpcmNsZSBjeD0nNDAwJyBjeT0nMjU2JyByPScyMCcgZmlsbD0nJTIzZWY0NDQ0Jy8lM0UlM0NjaXJjbGUgY3g9JzQwMCcgY3k9JzI1Nicgcj0nMTYnIGZpbGw9JyUyM2ZlZThlOCcvJTNFJTNDbGluZSB4MT0nNDAwJyB5MT0nMjAwJyB4Mj0nNDAwJyB5Mj0nMjEwJyBzdHJva2U9JyUyM2QxZDViYicgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtZGFzaGFycmF5PScyIDInLyUzRSUzQ2xpbmUgeDE9JzQxMCcgeTE9JzIxMCcgeDI9JzQxNicgeTI9JzIxNCcgc3Ryb2tlPSclMjNkMWQ1ZGInIHN0cm9rZS13aWR0aD0nMicvJTNFJTNDbGluZSB4MT0nMzkwJyB5MT0nMjEwJyB4Mj0nMzg0JyB5Mj0nMjE0JyBzdHJva2U9JyUyM2QxZDViYicgc3Ryb2tlLXdpZHRoPScyJy8lM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='192' height='192' viewBox='0 0 192 192' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='192' height='192' rx='40' fill='%23f97316'/%3E%3Crect x='40' y='90' width='112' height='12' rx='6' fill='white'/%3E%3Ccircle cx='150' cy='96' r='8' fill='%23ef4444'/%3E%3Ccircle cx='150' cy='96' r='6' fill='%23fee8e8'/%3E%3Cline x1='150' y1='78' x2='150' y2='82' stroke='%23d1d5db' stroke-width='1' stroke-dasharray='1 1'/%3E%3Cline x1='155' y1='82' x2='158' y2='84' stroke='%23d1d5db' stroke-width='1'/%3E%3Cline x1='145' y1='82' x2='142' y2='84' stroke='%23d1d5db' stroke-width='1'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg width='192' height='192' viewBox='0 0 192 192' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='192' height='192' rx='40' fill='%23f97316'/%3E%3Crect x='40' y='90' width='112' height='12' rx='6' fill='white'/%3E%3Ccircle cx='150' cy='96' r='8' fill='%23ef4444'/%3E%3Ccircle cx='150' cy='96' r='6' fill='%23fee8e8'/%3E%3Cline x1='150' y1='78' x2='150' y2='82' stroke='%23d1d5db' stroke-width='1' stroke-dasharray='1 1'/%3E%3Cline x1='155' y1='82' x2='158' y2='84' stroke='%23d1d5db' stroke-width='1'/%3E%3Cline x1='145' y1='82' x2='142' y2='84' stroke='%23d1d5db' stroke-width='1'/%3E%3C/svg%3E">
     <title>Konsum Tracker</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -350,16 +357,17 @@
             document.getElementById('statCost').textContent = cost.toFixed(2) + '€';
 
             // Chart
-            const startDate = new Date('2025-12-29');
+            const chartNow = new Date();
+            const startDate = new Date(chartNow); // Startet ab heute
             let periods = [];
             let count = currentView === 'day' ? 7 : currentView === 'week' ? 12 : currentView === 'month' ? 12 : 5;
             
             for (let i = 0; i < count; i++) {
                 const d = new Date(startDate);
-                if (currentView === 'day') d.setDate(startDate.getDate() + i);
-                else if (currentView === 'week') d.setDate(startDate.getDate() + i * 7);
-                else if (currentView === 'month') d.setMonth(startDate.getMonth() + i);
-                else d.setFullYear(startDate.getFullYear() + i);
+                if (currentView === 'day') d.setDate(startDate.getDate() - (count - 1 - i));
+                else if (currentView === 'week') d.setDate(startDate.getDate() - (count - 1 - i) * 7);
+                else if (currentView === 'month') d.setMonth(startDate.getMonth() - (count - 1 - i));
+                else d.setFullYear(startDate.getFullYear() - (count - 1 - i));
                 periods.push(d);
             }
 
