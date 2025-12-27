@@ -46,7 +46,7 @@
         .tab:hover:not(.active) { background: #f3f4f6; }
         .chart { margin-top: 1rem; }
         .bar-group { display: flex; align-items: flex-end; gap: 0.25rem; flex: 1; }
-        .bar { flex: 1; border-radius: 0.25rem 0.25rem 0 0; transition: height 0.3s; min-height: 2px; }
+        .bar { flex: 1; border-radius: 0.25rem 0.25rem 0 0; transition: height 0.3s; }
         .bar-cig { background: #f97316; }
         .bar-joint { background: #10b981; }
         .chart-wrapper { display: flex; align-items: flex-end; gap: 0.5rem; height: 150px; }
@@ -298,11 +298,15 @@
 
         function getDateKey(date, period) {
             const d = new Date(date);
-            if (period === 'day') return d.toLocaleDateString('de-DE');
+            if (period === 'day') {
+                // Nur Datum ohne Uhrzeit vergleichen
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            }
             if (period === 'week') {
                 const weekStart = new Date(d);
                 weekStart.setDate(d.getDate() - d.getDay() + 1);
-                return weekStart.toLocaleDateString('de-DE');
+                weekStart.setHours(0, 0, 0, 0);
+                return weekStart.toISOString().split('T')[0];
             }
             if (period === 'month') return `${d.getMonth() + 1}/${d.getFullYear()}`;
             if (period === 'year') return `${d.getFullYear()}`;
@@ -373,24 +377,55 @@
 
             const chartData = periods.map(date => {
                 const key = getDateKey(date, currentView);
-                const pEntries = entries.filter(e => getDateKey(e.timestamp, currentView) === key);
+                const pEntries = entries.filter(e => {
+                    const entryKey = getDateKey(e.timestamp, currentView);
+                    return entryKey === key;
+                });
                 const c = pEntries.filter(e => e.type === 'cigarette').length;
                 const j = pEntries.filter(e => e.type === 'joint').length;
-                const label = currentView === 'day' ? key.slice(0, 5) : currentView === 'week' ? key.slice(0, 5) : key;
+                
+                // Debug
+                if (c > 0 || j > 0) {
+                    console.log('Found entries for', key, '- Cigs:', c, 'Joints:', j);
+                }
+                
+                // Label für Anzeige
+                let label;
+                if (currentView === 'day') {
+                    const d = new Date(date);
+                    label = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+                } else if (currentView === 'week') {
+                    const d = new Date(date);
+                    label = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+                } else if (currentView === 'month') {
+                    const parts = key.split('/');
+                    label = `${parts[0]}/${parts[1].slice(-2)}`; // z.B. 12/25 statt 12/2025
+                } else {
+                    label = key;
+                }
+                
                 return { cigs: c, joints: j, label };
             });
 
             const maxVal = Math.max(...chartData.map(d => Math.max(d.cigs, d.joints)), 1);
             
-            const chartHTML = '<div class="chart-wrapper">' + chartData.map(d => `
+            console.log('Chart data:', chartData);
+            console.log('Max value:', maxVal);
+            
+            const chartHTML = '<div class="chart-wrapper">' + chartData.map(d => {
+                const cigHeight = d.cigs > 0 ? Math.max((d.cigs / maxVal) * 100, 10) : 0;
+                const jointHeight = d.joints > 0 ? Math.max((d.joints / maxVal) * 100, 10) : 0;
+                
+                return `
                 <div class="chart-item">
                     <div class="bar-group">
-                        <div class="bar bar-cig" style="height: ${(d.cigs / maxVal) * 100}%"></div>
-                        <div class="bar bar-joint" style="height: ${(d.joints / maxVal) * 100}%"></div>
+                        <div class="bar bar-cig" style="height: ${cigHeight}%"></div>
+                        <div class="bar bar-joint" style="height: ${jointHeight}%"></div>
                     </div>
                     <div class="chart-label">${d.label}</div>
                 </div>
-            `).join('') + '</div>';
+            `;
+            }).join('') + '</div>';
             
             document.getElementById('chart').innerHTML = chartHTML;
 
