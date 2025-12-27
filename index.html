@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konsum Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; }
+        .container { max-width: 600px; margin: 0 auto; padding: 1rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        h1 { font-size: 1.5rem; font-weight: bold; color: #111827; }
+        .btn { background: none; border: none; padding: 0.5rem; cursor: pointer; border-radius: 0.5rem; }
+        .btn:hover { background: #e5e7eb; }
+        .card { background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1rem; margin-bottom: 1rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+        .add-btn { padding: 1rem; border: none; border-radius: 0.75rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: white; transition: all 0.2s; }
+        .add-btn:active { transform: scale(0.95); }
+        .cig-btn { background: #f97316; }
+        .cig-btn:hover { background: #ea580c; }
+        .joint-btn { background: #10b981; }
+        .joint-btn:hover { background: #059669; }
+        .input-group { margin-bottom: 0.75rem; }
+        .input-group label { display: block; font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem; }
+        .input-group input, .input-group select { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 1rem; }
+        h3 { font-size: 1rem; margin-bottom: 0.75rem; color: #111827; }
+        .progress-bar { width: 100%; height: 0.5rem; background: #e5e7eb; border-radius: 9999px; overflow: hidden; margin-top: 0.25rem; }
+        .progress-fill { height: 100%; transition: width 0.3s; }
+        .progress-cig { background: #f97316; }
+        .progress-joint { background: #10b981; }
+        .progress-over { background: #ef4444; }
+        .stats { text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; }
+        .stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+        .view-tabs { display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 1rem; }
+        .tab { padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; white-space: nowrap; background: white; color: #374151; border: 1px solid #e5e7eb; }
+        .tab.active { background: #111827; color: white; }
+        .tab:hover:not(.active) { background: #f3f4f6; }
+        .chart { margin-top: 1rem; }
+        .bar-group { display: flex; align-items: flex-end; gap: 0.25rem; flex: 1; }
+        .bar { flex: 1; border-radius: 0.25rem 0.25rem 0 0; transition: height 0.3s; min-height: 2px; }
+        .bar-cig { background: #f97316; }
+        .bar-joint { background: #10b981; }
+        .chart-wrapper { display: flex; align-items: flex-end; gap: 0.5rem; height: 150px; }
+        .chart-item { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .chart-label { font-size: 0.625rem; color: #6b7280; margin-top: 0.25rem; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.25rem; }
+        .progress-text { color: #6b7280; }
+        .progress-value { font-weight: 500; }
+        .entry-item { padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .entry-info { display: flex; align-items: center; gap: 0.5rem; }
+        .entry-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; }
+        .entry-dot-cig { background: #f97316; }
+        .entry-dot-joint { background: #10b981; }
+        .entry-text { font-size: 0.875rem; }
+        .entry-time { color: #6b7280; font-size: 0.75rem; }
+        .delete-btn { background: #fee2e2; color: #dc2626; border: none; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; }
+        .delete-btn:hover { background: #fecaca; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .nav-btn { flex: 1; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; font-weight: 500; cursor: pointer; background: white; color: #374151; }
+        .nav-btn.active { background: #111827; color: white; border-color: #111827; }
+        .compare-item { padding: 1rem; background: #f9fafb; border-radius: 0.5rem; margin-bottom: 0.75rem; }
+        .compare-header { font-weight: 600; margin-bottom: 0.5rem; color: #111827; }
+        .compare-stats { display: flex; justify-content: space-around; }
+        .compare-stat { text-align: center; }
+        .compare-stat-value { font-size: 1.25rem; font-weight: bold; }
+        .compare-stat-label { font-size: 0.75rem; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Konsum Tracker</h1>
+            <button class="btn" onclick="toggleSettings()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </button>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 1rem;">
+            <button class="nav-btn active" onclick="switchPage('overview')">Übersicht</button>
+            <button class="nav-btn" onclick="switchPage('compare')">Vergleich</button>
+        </div>
+
+        <div id="settingsCard" class="card" style="display: none;">
+            <h3>Einstellungen</h3>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Preis/Zigarette (€)</label>
+                    <input type="number" step="0.01" id="cigPrice" value="0.30" onchange="saveSettings()">
+                </div>
+                <div class="input-group">
+                    <label>Preis/Joint (€)</label>
+                    <input type="number" step="0.01" id="jointPrice" value="5.00" onchange="saveSettings()">
+                </div>
+                <div class="input-group">
+                    <label>Wochenziel Zigaretten</label>
+                    <input type="number" id="goalCigs" value="70" onchange="saveSettings()">
+                </div>
+                <div class="input-group">
+                    <label>Wochenziel Joints</label>
+                    <input type="number" id="goalJoints" value="7" onchange="saveSettings()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Page -->
+        <div id="overviewPage" class="page active">
+            <div class="grid-2">
+                <button class="add-btn cig-btn" onclick="addEntry('cigarette')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Zigarette
+                </button>
+                <button class="add-btn joint-btn" onclick="addEntry('joint')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Joint
+                </button>
+            </div>
+
+            <div class="card">
+                <h3>Wochenziel</h3>
+                <div style="margin-bottom: 0.75rem;">
+                    <div class="progress-info">
+                        <span class="progress-text">Zigaretten</span>
+                        <span class="progress-value" id="weekCigs">0 / 70</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-cig" id="weekCigsBar"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="progress-info">
+                        <span class="progress-text">Joints</span>
+                        <span class="progress-value" id="weekJoints">0 / 7</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-joint" id="weekJointsBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-tabs">
+                <button class="tab active" onclick="changeView('day')">Tag</button>
+                <button class="tab" onclick="changeView('week')">Woche</button>
+                <button class="tab" onclick="changeView('month')">Monat</button>
+                <button class="tab" onclick="changeView('year')">Jahr</button>
+            </div>
+
+            <div class="card">
+                <div class="grid-3" style="margin-bottom: 1rem;">
+                    <div class="stats">
+                        <div class="stat-value" style="color: #f97316;" id="statCigs">0</div>
+                        <div class="stat-label">Zigaretten</div>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-value" style="color: #10b981;" id="statJoints">0</div>
+                        <div class="stat-label">Joints</div>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-value" id="statCost">0.00€</div>
+                        <div class="stat-label">Kosten</div>
+                    </div>
+                </div>
+                <div id="chart" class="chart"></div>
+            </div>
+
+            <div class="card">
+                <h3>Letzte Einträge</h3>
+                <div id="entryList" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+        </div>
+
+        <!-- Compare Page -->
+        <div id="comparePage" class="page">
+            <div class="card">
+                <h3>Wochen Vergleich</h3>
+                <div class="input-group">
+                    <label>Anzahl Wochen</label>
+                    <select id="weekCompareCount" onchange="updateCompare()">
+                        <option value="2">2 Wochen</option>
+                        <option value="4" selected>4 Wochen</option>
+                        <option value="8">8 Wochen</option>
+                        <option value="12">12 Wochen</option>
+                    </select>
+                </div>
+                <div id="weekCompare"></div>
+            </div>
+
+            <div class="card">
+                <h3>Monate Vergleich</h3>
+                <div class="input-group">
+                    <label>Anzahl Monate</label>
+                    <select id="monthCompareCount" onchange="updateCompare()">
+                        <option value="2">2 Monate</option>
+                        <option value="3" selected>3 Monate</option>
+                        <option value="6">6 Monate</option>
+                        <option value="12">12 Monate</option>
+                    </select>
+                </div>
+                <div id="monthCompare"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let entries = [];
+        let settings = { cigPrice: 0.30, jointPrice: 5.00, weeklyGoalCigs: 70, weeklyGoalJoints: 7 };
+        let currentView = 'day';
+        let currentPage = 'overview';
+
+        function loadData() {
+            const saved = localStorage.getItem('consumption-entries');
+            const savedSettings = localStorage.getItem('consumption-settings');
+            if (saved) entries = JSON.parse(saved);
+            if (savedSettings) {
+                settings = JSON.parse(savedSettings);
+                document.getElementById('cigPrice').value = settings.cigPrice;
+                document.getElementById('jointPrice').value = settings.jointPrice;
+                document.getElementById('goalCigs').value = settings.weeklyGoalCigs;
+                document.getElementById('goalJoints').value = settings.weeklyGoalJoints;
+            }
+            updateUI();
+        }
+
+        function saveData() {
+            localStorage.setItem('consumption-entries', JSON.stringify(entries));
+            localStorage.setItem('consumption-settings', JSON.stringify(settings));
+        }
+
+        function saveSettings() {
+            settings.cigPrice = parseFloat(document.getElementById('cigPrice').value) || 0;
+            settings.jointPrice = parseFloat(document.getElementById('jointPrice').value) || 0;
+            settings.weeklyGoalCigs = parseInt(document.getElementById('goalCigs').value) || 0;
+            settings.weeklyGoalJoints = parseInt(document.getElementById('goalJoints').value) || 0;
+            saveData();
+            updateUI();
+        }
+
+        function toggleSettings() {
+            const el = document.getElementById('settingsCard');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function switchPage(page) {
+            currentPage = page;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if (page === 'overview') {
+                document.getElementById('overviewPage').classList.add('active');
+                event.target.classList.add('active');
+            } else if (page === 'compare') {
+                document.getElementById('comparePage').classList.add('active');
+                event.target.classList.add('active');
+                updateCompare();
+            }
+        }
+
+        function addEntry(type) {
+            const now = new Date();
+            const startTime = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+            const endTime = new Date(now.getTime() + 10 * 60000).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+            const timeWindow = `${startTime} - ${endTime}`;
+            
+            entries.unshift({ 
+                id: Date.now(), 
+                type, 
+                timestamp: now.toISOString(),
+                timeWindow: timeWindow
+            });
+            saveData();
+            updateUI();
+        }
+
+        function changeView(view) {
+            currentView = view;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            updateUI();
+        }
+
+        function getDateKey(date, period) {
+            const d = new Date(date);
+            if (period === 'day') return d.toLocaleDateString('de-DE');
+            if (period === 'week') {
+                const weekStart = new Date(d);
+                weekStart.setDate(d.getDate() - d.getDay() + 1);
+                return weekStart.toLocaleDateString('de-DE');
+            }
+            if (period === 'month') return `${d.getMonth() + 1}/${d.getFullYear()}`;
+            if (period === 'year') return `${d.getFullYear()}`;
+        }
+
+        function getWeekNumber(d) {
+            const date = new Date(d);
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay() + 1);
+            return weekStart;
+        }
+
+        function updateUI() {
+            if (currentPage === 'overview') {
+                updateOverview();
+            } else if (currentPage === 'compare') {
+                updateCompare();
+            }
+        }
+
+        function updateOverview() {
+            // Weekly progress
+            const now = new Date();
+            const weekStart = new Date(now);
+            weekStart.setDate(now.getDate() - now.getDay() + 1);
+            const weekEntries = entries.filter(e => new Date(e.timestamp) >= weekStart);
+            const weekCigs = weekEntries.filter(e => e.type === 'cigarette').length;
+            const weekJoints = weekEntries.filter(e => e.type === 'joint').length;
+            const cigProgress = Math.round((weekCigs / settings.weeklyGoalCigs) * 100);
+            const jointProgress = Math.round((weekJoints / settings.weeklyGoalJoints) * 100);
+
+            document.getElementById('weekCigs').textContent = `${weekCigs} / ${settings.weeklyGoalCigs}`;
+            document.getElementById('weekJoints').textContent = `${weekJoints} / ${settings.weeklyGoalJoints}`;
+            
+            const cigBar = document.getElementById('weekCigsBar');
+            cigBar.style.width = Math.min(cigProgress, 100) + '%';
+            cigBar.className = 'progress-fill ' + (cigProgress > 100 ? 'progress-over' : 'progress-cig');
+            
+            const jointBar = document.getElementById('weekJointsBar');
+            jointBar.style.width = Math.min(jointProgress, 100) + '%';
+            jointBar.className = 'progress-fill ' + (jointProgress > 100 ? 'progress-over' : 'progress-joint');
+
+            // Current period stats
+            const currentKey = getDateKey(now, currentView);
+            const periodEntries = entries.filter(e => getDateKey(e.timestamp, currentView) === currentKey);
+            const cigs = periodEntries.filter(e => e.type === 'cigarette').length;
+            const joints = periodEntries.filter(e => e.type === 'joint').length;
+            const cost = cigs * settings.cigPrice + joints * settings.jointPrice;
+
+            document.getElementById('statCigs').textContent = cigs;
+            document.getElementById('statJoints').textContent = joints;
+            document.getElementById('statCost').textContent = cost.toFixed(2) + '€';
+
+            // Chart
+            const startDate = new Date('2025-12-29');
+            let periods = [];
+            let count = currentView === 'day' ? 7 : currentView === 'week' ? 12 : currentView === 'month' ? 12 : 5;
+            
+            for (let i = 0; i < count; i++) {
+                const d = new Date(startDate);
+                if (currentView === 'day') d.setDate(startDate.getDate() + i);
+                else if (currentView === 'week') d.setDate(startDate.getDate() + i * 7);
+                else if (currentView === 'month') d.setMonth(startDate.getMonth() + i);
+                else d.setFullYear(startDate.getFullYear() + i);
+                periods.push(d);
+            }
+
+            const chartData = periods.map(date => {
+                const key = getDateKey(date, currentView);
+                const pEntries = entries.filter(e => getDateKey(e.timestamp, currentView) === key);
+                const c = pEntries.filter(e => e.type === 'cigarette').length;
+                const j = pEntries.filter(e => e.type === 'joint').length;
+                const label = currentView === 'day' ? key.slice(0, 5) : currentView === 'week' ? key.slice(0, 5) : key;
+                return { cigs: c, joints: j, label };
+            });
+
+            const maxVal = Math.max(...chartData.map(d => Math.max(d.cigs, d.joints)), 1);
+            
+            const chartHTML = '<div class="chart-wrapper">' + chartData.map(d => `
+                <div class="chart-item">
+                    <div class="bar-group">
+                        <div class="bar bar-cig" style="height: ${(d.cigs / maxVal) * 100}%"></div>
+                        <div class="bar bar-joint" style="height: ${(d.joints / maxVal) * 100}%"></div>
+                    </div>
+                    <div class="chart-label">${d.label}</div>
+                </div>
+            `).join('') + '</div>';
+            
+            document.getElementById('chart').innerHTML = chartHTML;
+
+            // Entry list
+            const entryListHTML = entries.slice(0, 20).map(e => {
+                const date = new Date(e.timestamp);
+                const dateStr = date.toLocaleDateString('de-DE');
+                const typeLabel = e.type === 'cigarette' ? '🚬 Zigarette' : '🌿 Joint';
+                const dotClass = e.type === 'cigarette' ? 'entry-dot-cig' : 'entry-dot-joint';
+                
+                return `
+                    <div class="entry-item">
+                        <div class="entry-info">
+                            <div class="entry-dot ${dotClass}"></div>
+                            <div>
+                                <div class="entry-text">${typeLabel}</div>
+                                <div class="entry-time">${dateStr}, ${e.timeWindow}</div>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteEntry(${e.id})">Löschen</button>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('entryList').innerHTML = entryListHTML || '<div style="text-align: center; color: #9ca3af; padding: 2rem;">Noch keine Einträge</div>';
+        }
+
+        function updateCompare() {
+            const weekCount = parseInt(document.getElementById('weekCompareCount').value);
+            const monthCount = parseInt(document.getElementById('monthCompareCount').value);
+            
+            // Week comparison
+            const weeks = [];
+            for (let i = 0; i < weekCount; i++) {
+                const weekStart = new Date();
+                weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1 - (i * 7));
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                
+                const weekEntries = entries.filter(e => {
+                    const d = new Date(e.timestamp);
+                    return d >= weekStart && d <= weekEnd;
+                });
+                
+                const cigs = weekEntries.filter(e => e.type === 'cigarette').length;
+                const joints = weekEntries.filter(e => e.type === 'joint').length;
+                const cost = cigs * settings.cigPrice + joints * settings.jointPrice;
+                
+                weeks.push({
+                    label: `KW ${weekStart.toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})}`,
+                    cigs, joints, cost
+                });
+            }
+            
+            const weekHTML = weeks.map(w => `
+                <div class="compare-item">
+                    <div class="compare-header">${w.label}</div>
+                    <div class="compare-stats">
+                        <div class="compare-stat">
+                            <div class="compare-stat-value" style="color: #f97316;">${w.cigs}</div>
+                            <div class="compare-stat-label">Zigaretten</div>
+                        </div>
+                        <div class="compare-stat">
+                            <div class="compare-stat-value" style="color: #10b981;">${w.joints}</div>
+                            <div class="compare-stat-label">Joints</div>
+                        </div>
+                        <div class="compare-stat">
+                            <div class="compare-stat-value">${w.cost.toFixed(2)}€</div>
+                            <div class="compare-stat-label">Kosten</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('weekCompare').innerHTML = weekHTML;
+            
+            // Month comparison
+            const months = [];
+            for (let i = 0; i < monthCount; i++) {
+                const monthDate = new Date();
+                monthDate.setMonth(monthDate.getMonth() - i);
+                const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+                const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+                
+                const monthEntries = entries.filter(e => {
+                    const d = new Date(e.timestamp);
+                    return d >= monthStart && d <= monthEnd;
+                });
+                
+                const cigs = monthEntries.filter(e => e.type === 'cigarette').length;
+                const joints = monthEntries.filter(e => e.type === 'joint').length;
+                const cost = cigs * settings.cigPrice + joints * settings.jointPrice;
+                
+                months.push({
+                    label: monthDate.toLocaleDateString('de-DE', {month: 'long', year: 'numeric'}),
+                    cigs, joints, cost
+                });
+            }
+            
+            const monthHTML = months.map(m => `
+                <div class="compare-item">
+                    <div class="compare-header">${m.label}</div>
+                    <div class="compare-stats">
+                        <div class="compare-stat">
+                            <div class="compare-stat-value" style="color: #f97316;">${m.cigs}</div>
+                            <div class="compare-stat-label">Zigaretten</div>
+                        </div>
+                        <div class="compare-stat">
+                            <div class="compare-stat-value" style="color: #10b981;">${m.joints}</div>
+                            <div class="compare-stat-label">Joints</div>
+                        </div>
+                        <div class="compare-stat">
+                            <div class="compare-stat-value">${m.cost.toFixed(2)}€</div>
+                            <div class="compare-stat-label">Kosten</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('monthCompare').innerHTML = monthHTML;
+        }
+
+        function deleteEntry(id) {
+            entries = entries.filter(e => e.id !== id);
+            saveData();
+            updateUI();
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
